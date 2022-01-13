@@ -2,8 +2,6 @@ import web3 from "../model/web3";
 import contracts from "./contracts";
 
 export const mintNFT = async (contractId, tokenURI, recipient) => {
-    window.ethereum.request({ method: "eth_requestAccounts" });
-    
     const contract = contracts[contractId];
     if (!recipient) {
         const accounts = await web3.eth.getAccounts();
