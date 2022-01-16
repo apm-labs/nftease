@@ -23,9 +23,12 @@ const AccountInfo = (props) => {
 
             const torus = new Torus({});
             await torus.init({
-                buildEnv: "testnet",
+                buildEnv: "testing",
                 enableLogging: false,
-                showTorusButton: false
+                showTorusButton: false,
+                network: {
+                    host: "rinkeby", // default : 'mainnet'
+                  }
             });
             // await torus.setProvider({
             //     host: "rinkeby", // default : 'mainnet'
