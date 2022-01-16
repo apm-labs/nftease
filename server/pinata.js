@@ -1,12 +1,39 @@
+import path from 'path';
+import os from 'os';
+
+const axios = require('axios')
+
 const fs = require('fs');
+const client = require('https');
 
 const pinataSDK = require('@pinata/sdk');
 const pinata = pinataSDK('eed3e62e15fb35cb84c1', '52955b7afe9a69af60211a5d3843e796dde50e0ec5f8365c77f158a2845734d9');
 
-export const uploadAsset = async (file, name, description) => {
-    const stream = fs.createReadStream(file.filepath);
+export const downloadAsset = async (url) => {
+    const filePath = path.join(os.tmpdir(), 'foobar-'+ Date.now())
+    const response = await axios({
+        url,
+        method: 'GET',
+        responseType: 'stream'
+    });
+    return new Promise((resolve, reject) => {
+        response.data.pipe(fs.createWriteStream(filePath))
+            .on('error', reject)
+            .once('close', () => resolve(filePath)); 
+    });
+}
 
-    const options = {
+export const uploadAsset = async (file, name, description) => {
+    console.log(file, name);
+
+    let filePath = file.filePath;
+    if (!filePath) { // it's a URL
+        filePath = await downloadAsset(file);
+    }
+     
+    const stream = fs.createReadStream(filePath);
+
+    const options = name && {
         pinataMetadata: {
             name: name
         }
@@ -35,5 +62,8 @@ export const uploadAsset = async (file, name, description) => {
 
     const mresponse = await pinata.pinJSONToIPFS(metadata);
 
-    return mresponse.IpfsHash;
+    return {
+        tokenURI: mresponse.IpfsHash,
+        imageURI: response.IpfsHash
+    };
 };

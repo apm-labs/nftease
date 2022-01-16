@@ -12,10 +12,10 @@ export default async function handler(req, res) {
 
     form.parse(req, async (err, fields, files) => {
         if (!err) {
-            const tokenURI = await uploadAsset(files.file, fields.name);
+            const response = await uploadAsset((files && files.file) || fields.url, fields.name);
             //const response = await mint('singlemint', '0x7003797C57EB365910877a945862978E700F4aA6', tokenURI);
 
-            res.status(200).json({ tokenURI });
+            res.status(200).json(response);
         }
     });
   }
