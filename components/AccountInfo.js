@@ -1,8 +1,6 @@
 import { Button, Link } from '@mui/material';
-import Script from 'next/script';
 import * as React from 'react';
 import Web3 from 'web3';
-import web3 from '../model/web3';
 import { setActiveAccount } from '../server/contractManager';
 
 const AccountInfo = (props) => {
@@ -12,7 +10,11 @@ const AccountInfo = (props) => {
 
     const setAccount = async (account, provider) => {
         setAddress(account);
-        setBalance(account && await setActiveAccount(account, provider));
+
+        if (account) {
+            const balance = await setActiveAccount(account, provider)
+            setBalance(balance);
+        }
 
         props.onAccountFetched(account);
     };
@@ -27,12 +29,9 @@ const AccountInfo = (props) => {
                 enableLogging: false,
                 showTorusButton: false,
                 network: {
-                    host: "rinkeby", // default : 'mainnet'
+                    host: "rinkeby", 
                   }
             });
-            // await torus.setProvider({
-            //     host: "rinkeby", // default : 'mainnet'
-            //   });
 
             setTorus(torus);
 
@@ -47,9 +46,10 @@ const AccountInfo = (props) => {
     };
 
     const init = async () => {
+        const web3 = new Web3(window.ethereum);
+
         var accounts = await web3.eth.getAccounts();
         if (accounts && accounts.length > 0) {
-            console.log('initwallet', accounts[0]);
             setAccount(accounts[0]);
         } else {
             if (!await initTorus()) {
@@ -57,10 +57,6 @@ const AccountInfo = (props) => {
             }
         }
     };
-
-    React.useEffect(() => {
-        init();
-    }, []);
 
     const loginTorus = async () => {
         await torus.login();
@@ -72,6 +68,7 @@ const AccountInfo = (props) => {
     };
 
     const connectWallet = async () => {
+        const web3 = new Web3(window.ethereum);
         await web3.eth.requestAccounts();
 
         const accounts = await web3.eth.getAccounts();
@@ -83,8 +80,8 @@ const AccountInfo = (props) => {
     const showTorusWallet = async () => {
         try {
             torus.showWallet();
-        } catch {
-
+        } catch (err) {
+            console.log('Torus wallet error', err);
         }
     };
 
@@ -96,14 +93,16 @@ const AccountInfo = (props) => {
                 selectedCryptoCurrency: "ETH",
                 selectedAddress: address,
             });
-        } catch {
-
+        } catch (err) {
+            console.log('Torus add fund error', err);
         }
     };
 
-    return <div style={{display: 'flex', flexDirection: 'column' }}>
-        <Script src="https://cdn.jsdelivr.net/npm/@toruslabs/openlogin@0"></Script>
+    React.useEffect(() => {
+        init();
+    }, []);
 
+    return <div style={{display: 'flex', flexDirection: 'column' }}>
         {address && 
             <div style={{display: 'flex', flexDirection: 'column',  padding: 10, fontSize: 13 }}>
                 <p><strong>Address</strong>: {address}</p>

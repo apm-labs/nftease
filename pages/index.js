@@ -1,4 +1,5 @@
 import { CircularProgress } from "@mui/material";
+import Script from "next/script";
 import React, { useState } from "react";
 import AccountInfo from "../components/AccountInfo";
 import SingleMint from "../components/SingleMint";
@@ -13,6 +14,9 @@ export default () => {
     };
 
     return <div style={{padding: 20}}>
+        
+        <Script src="https://cdn.jsdelivr.net/npm/@toruslabs/openlogin@0"></Script>
+
         <div hidden={!initialized} style={{position: 'absolute', right: 10, top: 10 }}>
             <AccountInfo onAccountFetched={onAccountFetched} />
         </div>

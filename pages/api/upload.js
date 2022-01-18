@@ -12,8 +12,7 @@ export default async function handler(req, res) {
 
     form.parse(req, async (err, fields, files) => {
         if (!err) {
-            const response = await uploadAsset((files && files.file) || fields.url, fields.name);
-            //const response = await mint('singlemint', '0x7003797C57EB365910877a945862978E700F4aA6', tokenURI);
+            const response = await uploadAsset(fields.url || (files && files.file), fields.name);
 
             res.status(200).json(response);
         }

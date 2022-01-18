@@ -11,14 +11,6 @@ const contracts = {
 let web3;
 let account;
 
-export async function getBalance(account, fetch) {
-    const wei = fetch ? 
-        await eweb3.eth.getBalance(account) : 
-        await web3.eth.getBalance(account);
-    
-    return web3.utils.fromWei(wei, 'ether');
-}
-
 export const mintNFT = async (contractId, tokenURI, recipient) => {
     const contract = new web3.eth.Contract(contracts[contractId].abi, contracts[contractId].id);
     
@@ -39,4 +31,4 @@ export const setActiveAccount = async(account, provider) => {
     const wei = await web3.eth.getBalance(account);
 
     return web3.utils.fromWei(wei, 'ether');
-}
+};

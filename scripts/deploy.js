@@ -7,6 +7,7 @@ const provider = new HDWalletProvider(
     fs.readFileSync(".secret").toString().trim(), //mnemoic
     'https://rinkeby.infura.io/v3/292e479fcfaa4ed3bbb2c7115b1798da' //rinkeby
 );
+
 const web3 = new Web3(provider);
 
 const deploy = async (name) => {

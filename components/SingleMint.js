@@ -4,10 +4,8 @@ import React, { useState } from "react";
 import { mintNFT } from "../server/contractManager";
 
 const SingleMint = (props) => {
-    const [image, setImage] = useState(null);
-    const [selectedFile, setSelectedFile] = useState('https://source.unsplash.com/random/500x500?sig=1');
+    const [imageURL, setImageURL] = useState(null);
     const [processing, setProcessing] = useState(null);
-    const [url, setUrl] = useState(null);
     const [result, setResult] = useState(null);
 
     const mint = async () => {
@@ -15,34 +13,26 @@ const SingleMint = (props) => {
 
         try {
             const formData = new FormData();
-            formData.append('url', selectedFile);
+            formData.append('url', 'https://source.unsplash.com/random/500x500?sig=1');
 
-            const response = await fetch(`/api/singlemint`, {
+            const response = await fetch(`/api/upload`, {
                 method: 'POST',
                 body: formData,
             });
 
-            const data = (await response.json());
-            const imageURI = data.imageURI;
+            const assetData = await response.json();
+            const result = await mintNFT('singlemint', assetData.tokenURI, props.account);
 
-            const result = await mintNFT('singlemint', data.tokenURI, props.account);
-
-            setTimeout(() => {
-                setUrl(`https://ipfs.io/ipfs/${imageURI}`);
-                setResult(result);
-                setProcessing(false);
-            }, 3000);
-
-            console.log(response);
-        } catch (err) {
-            console.log(err);
+            setImageURL(`https://ipfs.io/ipfs/${assetData.imageURI}`);
+            setResult(result);
+        } finally {
             setProcessing(false);
         }
     };
 
     
     return <Box sx={{display: 'flex', flexDirection: 'column', height: '600px', justifyContent: 'center', alignItems: 'center' }}>
-        {url && <img src={url} style={{ maxWidth: '500px', paddingBottom: 5 }} />}
+        {imageURL && <img src={imageURL} style={{ maxWidth: '500px', paddingBottom: 5 }} />}
         { !result && !processing && <Button
             variant="outlined"
             component="span" 
