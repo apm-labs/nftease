@@ -27,10 +27,12 @@ const AccountInfo = (props) => {
             await torus.init({
                 buildEnv: "testing",
                 enableLogging: false,
-                showTorusButton: false,
+                showTorusButton: true,
                 network: {
-                    host: "rinkeby", 
-                  }
+                    host: "mumbai",
+                    chainId: 80001,
+                    networkName: "Mumbai Test Network" 
+                  },
             });
 
             setTorus(torus);
@@ -90,12 +92,17 @@ const AccountInfo = (props) => {
             await torus.initiateTopup("wyre", {
                 selectedCurrency: "USD",
                 fiatValue: 150,
-                selectedCryptoCurrency: "ETH",
+                //selectedCryptoCurrency: "MATIC",
                 selectedAddress: address,
             });
         } catch (err) {
             console.log('Torus add fund error', err);
         }
+    };
+
+    const logout = () => {
+        torus.logout();
+        setAccount(null);
     };
 
     React.useEffect(() => {
@@ -106,13 +113,16 @@ const AccountInfo = (props) => {
         {address && 
             <div style={{display: 'flex', flexDirection: 'column',  padding: 10, fontSize: 13 }}>
                 <p><strong>Address</strong>: {address}</p>
-                <p><strong>Balance</strong>: {balance} ETH</p>
+                <p><strong>Balance</strong>: {balance} MATIC</p>
                 <div>
                 <Button variant="outlined" component="span" style={{alignSelf: 'flex-start', marginRight: 30}} onClick={addTorusFund}>
                     Add Funds
                 </Button>
-                <Button variant="outlined" component="span" style={{alignSelf: 'flex-end'}} onClick={showTorusWallet}>
+                <Button variant="outlined" component="span" style={{alignSelf: 'flex-end', marginRight: 30}} onClick={showTorusWallet}>
                     Show Wallet
+                </Button>
+                <Button variant="outlined" component="span" style={{alignSelf: 'flex-end'}} onClick={logout}>
+                    Logout
                 </Button>
                 </div>
             </div>
