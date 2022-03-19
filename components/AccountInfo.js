@@ -3,6 +3,8 @@ import * as React from 'react';
 import Web3 from 'web3';
 import { setActiveAccount } from '../server/contractManager';
 
+import { isMobile } from 'react-device-detect';
+
 const AccountInfo = (props) => {
     const [address, setAddress] = React.useState(props.address);
     const [balance, setBalance] = React.useState(props.balance);
@@ -27,7 +29,7 @@ const AccountInfo = (props) => {
             await torus.init({
                 buildEnv: "testing",
                 enableLogging: false,
-                showTorusButton: true,
+                showTorusButton: false,
                 network: {
                     host: "mumbai",
                     chainId: 80001,
@@ -43,6 +45,8 @@ const AccountInfo = (props) => {
             
             setAccount(address, torus.provider);
 
+            console.log(torus);
+
             return address;
         }
     };
@@ -50,7 +54,8 @@ const AccountInfo = (props) => {
     const init = async () => {
         const web3 = new Web3(window.ethereum);
 
-        var accounts = await web3.eth.getAccounts();
+        var accounts = window.ethereum && await web3.eth.getAccounts();
+
         if (accounts && accounts.length > 0) {
             setAccount(accounts[0]);
         } else {
@@ -71,12 +76,25 @@ const AccountInfo = (props) => {
 
     const connectWallet = async () => {
         const web3 = new Web3(window.ethereum);
-        await web3.eth.requestAccounts();
+        
+        const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
 
-        const accounts = await web3.eth.getAccounts();
         if (accounts && accounts.length > 0) {
             setAccount(accounts[0]);
         }
+
+        if (isMobileDevice()) {
+            const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + window.origin;
+            return (
+              <a href={metamaskAppDeepLink}>
+                 <button className={styles.button}>
+                   Connect to MetaMask
+                 </button>
+              </a>
+            );
+          }
     };
 
     const showTorusWallet = async () => {
@@ -101,7 +119,7 @@ const AccountInfo = (props) => {
     };
 
     const logout = () => {
-        torus.logout();
+        torus && torus.logout();
         setAccount(null);
     };
 
@@ -129,9 +147,18 @@ const AccountInfo = (props) => {
         }
         {!address && 
             <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 10 }}>
-                <Button variant="outlined" component="span" onClick={connectWallet}>
-                    Connect Wallet
-                </Button>
+                {isMobile ?  (<Button variant="outlined" component="span">
+                <a href={"https://metamask.app.link/dapp/nftease.vercel.app/#"}>
+                    
+                        Connect Wallet
+                    
+                </a></Button>
+                ) :(
+                                       <Button variant="outlined" component="span" onClick={connectWallet}>
+                        Connect Wallet
+                    </Button>
+                )
+                }
                 <Link style={{paddingTop: 12, fontSize: 13, color: 'gray' }} href="#" onClick={loginTorus}>I don't have a wallet</Link>
             </div>
         }
